@@ -17,6 +17,26 @@ A Spring Boot implementation of the take-home Event Ledger API. It accepts finan
 - JDK 17 or newer
 - Maven 3.9 or newer
 
+## Setup & Installation
+
+1. Install the prerequisites if you don't already have them (macOS example):
+
+```sh
+# Java (via Homebrew)
+brew install openjdk@17
+
+# Maven
+brew install maven
+```
+
+2. From the project root, download and build dependencies:
+
+```sh
+mvn clean install -DskipTests
+```
+
+This downloads all Maven dependencies and builds the project artifacts.
+
 ## Run
 
 ```sh

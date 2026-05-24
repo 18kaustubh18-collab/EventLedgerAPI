@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Event Ledger API
 
 A Spring Boot implementation of the take-home Event Ledger API. It accepts financial transaction events, deduplicates repeated `eventId` submissions, tolerates out-of-order arrival, and computes account balances from the accepted ledger.
@@ -124,3 +125,4 @@ Example response:
 ## Validation
 
 The API returns `400 Bad Request` with a clear error message for missing required fields, non-positive amounts, unknown event types, and invalid timestamps.
+

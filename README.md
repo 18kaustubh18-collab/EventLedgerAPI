@@ -6,11 +6,10 @@ A Spring Boot implementation of the take-home Event Ledger API. It accepts finan
 ## Why This Approach
 
 1. I used Spring Boot with Maven for standard build, run, API, and Swagger support.
-2. I store events in memory with a `ConcurrentHashMap` keyed by `eventId`. This gives atomic duplicate protection through `putIfAbsent`, which is the core idempotency requirement.
-3. I do not cache a single running balance. Balances are computed from accepted events, so a late-arriving event cannot make previous state inconsistent.
-4. Event listing sorts by `eventTimestamp` every time it is read. That makes response order independent of ingestion order.
-5. Amounts use `BigDecimal` rather than floating point to avoid rounding errors in financial values.
-6. Balances are grouped by currency in the `balances` field. A top-level `balance` is also returned for the simple single-currency case described by the assessment examples.
+2. I store events in memory with a `ConcurrentHashMap` where key  is `eventId`. This gives duplicate protection through `putIfAbsent`, which follows the major idempotency requirement.
+3. Event listing sorts by `eventTimestamp` every time it is read. That makes response order independent of ingestion order.
+4. Amounts use `BigDecimal` instead of floating point to avoid rounding errors in financial values.
+5. Balances are grouped by currency in the `balances` field. A top-level `balance` is also returned for the simple single-currency case .
 
 ## Prerequisites
 
@@ -108,7 +107,8 @@ curl -i -X POST http://localhost:8080/events \
   }'
 ```
 
-Returns `201 Created` for a new event. A duplicate `eventId` returns `200 OK` with the original event and does not change balance.
+Returns `201 Created` for a new event. 
+A duplicate `eventId` returns `200 OK` with the original event and does not change balance.
 
 ### Get an Event
 

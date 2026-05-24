@@ -13,6 +13,13 @@ public class RestExceptionHandler {
         return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(PageOutOfRangeException.class)
+    public ResponseEntity<ErrorResponse> handlePageOutOfRange(PageOutOfRangeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequestParameter(MissingServletRequestParameterException ex) {
         return ResponseEntity

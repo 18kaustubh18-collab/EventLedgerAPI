@@ -108,7 +108,7 @@ public class EventService {
 
     private EventType parseType(String value) {
         try {
-            return EventType.valueOf(value);
+            return EventType.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException ex) {
             throw new ValidationException("type must be CREDIT or DEBIT");
         }

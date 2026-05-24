@@ -44,9 +44,12 @@ public class EventRepository {
             throw new IllegalArgumentException("page must be >= 0 and size must be > 0");
         }
         List<TransactionEvent> all = findByAccount(accountId);
+        if (all.isEmpty()) {
+            return List.of();
+        }
         int from = page * size;
         if (from >= all.size()) {
-            return List.of();
+            throw new PageOutOfRangeException("this many record doesn't exist");
         }
         int to = Math.min(from + size, all.size());
         return new ArrayList<>(all.subList(from, to));

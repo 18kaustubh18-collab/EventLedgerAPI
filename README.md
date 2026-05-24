@@ -1,15 +1,14 @@
-<<<<<<< HEAD
 # Event Ledger API
 
 A Spring Boot implementation of the take-home Event Ledger API. It accepts financial transaction events, deduplicates repeated `eventId` submissions, tolerates out-of-order arrival, and computes account balances from the accepted ledger.
 
 ## Why This Approach
 
-1. I used Spring Boot with Maven for standard build, run, API, and Swagger support.
-2. I store events in memory with a `ConcurrentHashMap` where key  is `eventId`. This gives duplicate protection through `putIfAbsent`, which follows the major idempotency requirement.
-3. Event listing sorts by `eventTimestamp` every time it is read. That makes response order independent of ingestion order.
-4. Amounts use `BigDecimal` instead of floating point to avoid rounding errors in financial values.
-5. Balances are grouped by currency in the `balances` field. A top-level `balance` is also returned for the simple single-currency case .
+1. Spring Boot with Maven provides standard build, run, API, and Swagger support.
+2. Events are stored in memory with a `ConcurrentHashMap` keyed by `eventId`, giving duplicate protection through `putIfAbsent`.
+3. Event listing sorts by `eventTimestamp` on each request, so response order is independent of arrival order.
+4. Amounts use `BigDecimal` rather than floating point to avoid rounding errors in financial values.
+5. Balances are grouped by currency in the `balances` field. A top-level `balance` is also returned for the simple single-currency case.
 
 ## Prerequisites
 
@@ -78,7 +77,7 @@ Equivalent Maven command:
 mvn test
 ```
 
-The tests cover idempotency, out-of-order arrival, balance calculation, and validation failures.
+The tests cover idempotency, out-of-order arrival, balance calculation, pagination, and validation failures.
 
 ## Endpoints
 
@@ -107,8 +106,14 @@ curl -i -X POST http://localhost:8080/events \
   }'
 ```
 
-Returns `201 Created` for a new event. 
-A duplicate `eventId` returns `200 OK` with the original event and does not change balance.
+Returns `201 Created` for a new event.
+Duplicate `eventId` submissions return `409 Conflict` with:
+
+```json
+{ "error": "event id already exists" }
+```
+
+The `type` field is case-insensitive and supports `CREDIT` or `DEBIT` in any letter case.
 
 ### Get an Event
 
@@ -125,6 +130,11 @@ GET /events?account={accountId}&page=0&size=10
 Events are returned in chronological order by `eventTimestamp`.
 
 The default page size is `10`, and pages are zero-based.
+If the requested page is beyond the available results, the API returns `404 Not Found` with:
+
+```json
+{ "error": "this many record doesn't exist" }
+```
 
 ### Get Account Balance
 
@@ -146,5 +156,14 @@ Example response:
 
 ## Validation
 
-The API returns `400 Bad Request` with a clear error message for missing required fields, non-positive amounts, unknown event types, and invalid timestamps.
+The API returns `400 Bad Request` with a clear error message for:
+
+- missing required fields
+- non-positive amounts
+- invalid event types
+- invalid timestamps
+
+## Storage
+
+Events are stored in memory only. There is no persistent database backing this implementation.
 

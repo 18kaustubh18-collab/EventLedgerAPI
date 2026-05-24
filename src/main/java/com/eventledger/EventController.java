@@ -33,12 +33,14 @@ public class EventController {
     @PostMapping("/events")
     @Operation(summary = "Submit a transaction event")
     @ApiResponse(responseCode = "201", description = "Event created")
-    @ApiResponse(responseCode = "200", description = "Duplicate event; original event returned")
+    @ApiResponse(responseCode = "409", description = "Event ID already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    public ResponseEntity<TransactionEvent> submitEvent(@RequestBody TransactionEventRequest payload) {
+    public ResponseEntity<?> submitEvent(@RequestBody TransactionEventRequest payload) {
         SubmissionResult result = service.submit(payload);
-        HttpStatus status = result.created() ? HttpStatus.CREATED : HttpStatus.OK;
-        return ResponseEntity.status(status).body(result.event());
+        if (result.created()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(result.event());
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("event id already exists"));
     }
 
     @GetMapping("/events/{id}")

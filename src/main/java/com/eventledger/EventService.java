@@ -31,6 +31,21 @@ public class EventService {
         return repository.findByAccount(accountId);
     }
 
+    public List<TransactionEvent> listEvents(String accountId, int page, int size) {
+        requireNonBlank(accountId, "account query parameter is required");
+        if (page < 0) {
+            throw new ValidationException("page must be >= 0");
+        }
+        if (size <= 0) {
+            throw new ValidationException("size must be > 0");
+        }
+        try {
+            return repository.findByAccount(accountId, page, size);
+        } catch (IllegalArgumentException ex) {
+            throw new ValidationException(ex.getMessage());
+        }
+    }
+
     public Map<String, BigDecimal> getBalances(String accountId) {
         requireNonBlank(accountId, "accountId is required");
         return repository.balancesByCurrency(accountId);

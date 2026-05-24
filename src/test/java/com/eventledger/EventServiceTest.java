@@ -39,6 +39,30 @@ class EventServiceTest {
     }
 
     @Test
+    void eventListingSupportsPagination() {
+        EventService service = newService();
+        service.submit(event("evt-1", "acct-1", "CREDIT", "10.00", "2026-05-15T08:00:00Z"));
+        service.submit(event("evt-2", "acct-1", "CREDIT", "20.00", "2026-05-15T09:00:00Z"));
+        service.submit(event("evt-3", "acct-1", "CREDIT", "30.00", "2026-05-15T10:00:00Z"));
+
+        List<TransactionEvent> page0 = service.listEvents("acct-1", 0, 2);
+        List<TransactionEvent> page1 = service.listEvents("acct-1", 1, 2);
+
+        assertEquals(2, page0.size());
+        assertEquals("evt-1", page0.get(0).eventId());
+        assertEquals("evt-2", page0.get(1).eventId());
+        assertEquals(1, page1.size());
+        assertEquals("evt-3", page1.get(0).eventId());
+    }
+
+    @Test
+    void paginationRejectsInvalidParameters() {
+        EventService service = newService();
+        assertValidation(() -> service.listEvents("acct-1", -1, 1), "page must be >= 0");
+        assertValidation(() -> service.listEvents("acct-1", 0, 0), "size must be > 0");
+    }
+
+    @Test
     void balanceAddsCreditsAndSubtractsDebits() {
         EventService service = newService();
         service.submit(event("evt-1", "acct-2", "CREDIT", "150.00", "2026-05-15T10:00:00Z"));

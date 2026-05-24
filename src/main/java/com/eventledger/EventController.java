@@ -57,8 +57,10 @@ public class EventController {
     @Operation(summary = "List events for an account ordered by event timestamp")
     @ApiResponse(responseCode = "200", description = "Events for the account")
     @ApiResponse(responseCode = "404", description = "Account not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    public ResponseEntity<?> listEvents(@RequestParam String account) {
-        List<TransactionEvent> events = service.listEvents(account);
+    public ResponseEntity<?> listEvents(@RequestParam String account,
+                                        @RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size) {
+        List<TransactionEvent> events = service.listEvents(account, page, size);
         if (events.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(ACCOUNT_NOT_FOUND));
         }

@@ -39,6 +39,19 @@ public class EventRepository {
         return events;
     }
 
+    public List<TransactionEvent> findByAccount(String accountId, int page, int size) {
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("page must be >= 0 and size must be > 0");
+        }
+        List<TransactionEvent> all = findByAccount(accountId);
+        int from = page * size;
+        if (from >= all.size()) {
+            return List.of();
+        }
+        int to = Math.min(from + size, all.size());
+        return new ArrayList<>(all.subList(from, to));
+    }
+
     public Map<String, BigDecimal> balancesByCurrency(String accountId) {
         Map<String, BigDecimal> balances = new java.util.TreeMap<>();
         for (TransactionEvent event : eventsById.values()) {

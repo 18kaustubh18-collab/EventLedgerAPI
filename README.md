@@ -119,10 +119,12 @@ GET /events/{id}
 ### List Events for an Account
 
 ```http
-GET /events?account={accountId}
+GET /events?account={accountId}&page=0&size=10
 ```
 
 Events are returned in chronological order by `eventTimestamp`.
+
+The default page size is `10`, and pages are zero-based.
 
 ### Get Account Balance
 
